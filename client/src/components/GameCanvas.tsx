@@ -48,7 +48,7 @@ export default function GameCanvas() {
     const engine = new Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true, adaptToDeviceRatio: true });
     const onKeyDown = (event: KeyboardEvent) => {
       if (readerOpenRef.current) return;
-      const actions: Record<string, GameAction> = { ArrowUp: { type: "move", dx: 0, dz: -1 }, w: { type: "move", dx: 0, dz: -1 }, W: { type: "move", dx: 0, dz: -1 }, ArrowDown: { type: "move", dx: 0, dz: 1 }, s: { type: "move", dx: 0, dz: 1 }, S: { type: "move", dx: 0, dz: 1 }, ArrowLeft: { type: "move", dx: -1, dz: 0 }, a: { type: "move", dx: -1, dz: 0 }, A: { type: "move", dx: -1, dz: 0 }, ArrowRight: { type: "move", dx: 1, dz: 0 }, d: { type: "move", dx: 1, dz: 0 }, D: { type: "move", dx: 1, dz: 0 } };
+      const actions: Record<string, GameAction> = { ArrowUp: { type: "move", dx: 0, dz: 1 }, w: { type: "move", dx: 0, dz: 1 }, W: { type: "move", dx: 0, dz: 1 }, ArrowDown: { type: "move", dx: 0, dz: -1 }, s: { type: "move", dx: 0, dz: -1 }, S: { type: "move", dx: 0, dz: -1 }, ArrowLeft: { type: "move", dx: -1, dz: 0 }, a: { type: "move", dx: -1, dz: 0 }, A: { type: "move", dx: -1, dz: 0 }, ArrowRight: { type: "move", dx: 1, dz: 0 }, d: { type: "move", dx: 1, dz: 0 }, D: { type: "move", dx: 1, dz: 0 } };
       if (actions[event.key]) { event.preventDefault(); issue(actions[event.key]); return; }
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -72,7 +72,7 @@ export default function GameCanvas() {
     if (!origin || readerOpenRef.current) return;
     const dx = event.clientX - origin.x; const dy = event.clientY - origin.y;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 28) return;
-    issue(Math.abs(dx) > Math.abs(dy) ? { type: "move", dx: dx > 0 ? 1 : -1, dz: 0 } : { type: "move", dx: 0, dz: dy > 0 ? 1 : -1 });
+    issue(Math.abs(dx) > Math.abs(dy) ? { type: "move", dx: dx > 0 ? 1 : -1, dz: 0 } : { type: "move", dx: 0, dz: dy > 0 ? -1 : 1 });
   };
   const openReader = () => { if (game.activeBook) setReaderStoryId(game.activeBook.storyId); };
   const finishReading = () => { setReaderStoryId(null); issue({ type: "read" }); };
