@@ -4,6 +4,7 @@ title: 棚の整理術
 genre: practical
 byline: 生活の編集者
 effect: 積読の重みを整える
+hook: 空白を残す本棚の整理術は、読まない本の置き場所から始まる。
 prototype: true
 ---
 

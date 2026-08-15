@@ -4,6 +4,7 @@ title: 湯気と索引
 genre: cooking
 byline: 台所の人
 effect: 余白を温める
+hook: 索引のない料理帳には、湯気が消えたあとに必要なことだけが残る。
 prototype: true
 ---
 

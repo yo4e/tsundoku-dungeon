@@ -4,6 +4,7 @@ title: 余白の足跡
 genre: mystery
 byline: 無署名の探偵
 effect: 一度だけ筋道を引く
+hook: 雨の古書店の詩集には、本文より先に乾きかけた足跡があった。
 prototype: true
 ---
 

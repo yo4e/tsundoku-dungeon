@@ -3,7 +3,7 @@
  * modal. Parchment, restrained vermilion, and generous Japanese typesetting
  * take priority over the dungeon's intentional perceptual friction.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Story } from "@/content/storyCatalog";
 
 const SIZE_KEY = "tsundoku-reader-font-size";
@@ -13,6 +13,8 @@ type ReaderSize = (typeof FONT_SIZES)[number];
 const SIZE_LABEL: Record<ReaderSize, string> = { small: "小", medium: "中", large: "大" };
 
 export default function Reader({ story, onBack, onComplete }: { story: Story; onBack: () => void; onComplete: () => void }) {
+  const shellRef = useRef<HTMLElement>(null);
+  const backButtonRef = useRef<HTMLButtonElement>(null);
   const [size, setSize] = useState<ReaderSize>(() => {
     const stored = window.localStorage.getItem(SIZE_KEY);
     return FONT_SIZES.includes(stored as ReaderSize) ? (stored as ReaderSize) : "medium";
@@ -29,15 +31,20 @@ export default function Reader({ story, onBack, onComplete }: { story: Story; on
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onBack]);
 
+  useEffect(() => {
+    shellRef.current?.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+    backButtonRef.current?.focus();
+  }, [story.id]);
+
   const chooseSize = (next: ReaderSize) => {
     setSize(next);
     window.localStorage.setItem(SIZE_KEY, next);
   };
 
   return (
-    <article className={`reader-shell reader-size-${size}`} aria-label={`『${story.title}』を読む`}>
+    <article ref={shellRef} className={`reader-shell reader-size-${size}`} role="dialog" aria-modal="true" aria-label={`『${story.title}』を読む`}>
       <header className="reader-toolbar">
-        <button type="button" className="reader-back" onClick={onBack}>← <span>本棚へ戻る</span></button>
+        <button ref={backButtonRef} type="button" className="reader-back" onClick={onBack}>← <span>本棚へ戻る</span></button>
         <div className="reader-running-title"><small>{story.byline}</small><strong>『{story.title}』</strong></div>
         <div className="reader-size-picker" aria-label="文字サイズ">
           <span>Aa</span>
@@ -53,9 +60,10 @@ export default function Reader({ story, onBack, onComplete }: { story: Story; on
           {story.body.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
         <section className="reader-finish">
-          <p>読み終えた頁は、記憶の棚に置かれる。</p>
-          <button type="button" className="reader-complete" onClick={onComplete}>この本を読み終える <span>→</span></button>
-          <small>ここで初めて、時間と余白が動く。</small>
+          <span className="reader-endmark">了</span>
+          <p>頁を閉じると、物語は静かにあなたの棚へ戻る。</p>
+          <button type="button" className="reader-complete" onClick={onComplete}>本を閉じる <span>→</span></button>
+          <small>読み終えた本の力だけを、持ち帰る。</small>
         </section>
       </main>
     </article>

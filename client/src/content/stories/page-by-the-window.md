@@ -4,6 +4,7 @@ title: 窓辺の頁
 genre: literature
 byline: 季節の作家
 effect: 休息に余韻を足す
+hook: 祖母が残した窓辺の一頁には、見えない風の居場所が記されている。
 prototype: true
 ---
 

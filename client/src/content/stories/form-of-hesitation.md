@@ -4,6 +4,7 @@ title: 迷いの形式
 genre: philosophy
 byline: 夜の講義録
 effect: 直前の一歩を戻せる
+hook: 迷いを書き込むためだけの帳面が、雨の駅で一冊だけ待っていた。
 prototype: true
 ---
 

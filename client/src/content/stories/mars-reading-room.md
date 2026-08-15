@@ -4,6 +4,7 @@ title: 火星の読書室
 genre: sf
 byline: 未来観測局
 effect: 出口への見通しを残す
+hook: 火星基地の返却台に、120年前の日付が入った無題の本が置かれていた。
 prototype: true
 ---
 

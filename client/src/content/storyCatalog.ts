@@ -13,6 +13,8 @@ export type Story = {
   genre: Genre;
   byline: string;
   effect: string;
+  hook: string;
+  readingMinutes: number;
   body: string[];
 };
 
@@ -25,13 +27,18 @@ function parseStory(raw: string): Story {
       .filter(([key, value]) => Boolean(key && value)),
   );
 
+  const body = prose.trim().split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean);
+  const characterCount = body.join("").replace(/\s/g, "").length;
+
   return {
     id: fields.id,
     title: fields.title,
     genre: fields.genre as Genre,
     byline: fields.byline,
     effect: fields.effect,
-    body: prose.trim().split(/\n\s*\n/).map((paragraph) => paragraph.trim()).filter(Boolean),
+    hook: fields.hook ?? "棚の奥で、まだ名前のない頁がこちらを待っている。",
+    readingMinutes: Math.max(1, Math.ceil(characterCount / 400)),
+    body,
   };
 }
 
