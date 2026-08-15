@@ -7,6 +7,6 @@
 
 # GitHub Pages公開チェックリスト
 
-- [ ] GitHub Pagesの公開条件と静的ビルド設定を確認する。
-- [ ] GitHub Pages向けのビルド設定とActionsワークフローを追加する。
-- [ ] 公開設定を反映し、公開URLの応答を確認する。
+- [x] GitHub Pagesの公開条件と静的ビルド設定を確認する。
+- [x] GitHub Pages向けのビルド設定とActionsワークフローを追加する。
+- [x] 公開設定を反映し、公開URLの応答を確認する。
