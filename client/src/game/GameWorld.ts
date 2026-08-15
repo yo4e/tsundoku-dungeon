@@ -5,6 +5,7 @@ import { StandardMaterial } from "@babylonjs/core/Materials/standardMaterial";
 import { Scene } from "@babylonjs/core/scene";
 import { Texture } from "@babylonjs/core/Materials/Textures/texture";
 import { Vector3 } from "@babylonjs/core/Maths/math.vector";
+import { storyCatalog } from "@/content/storyCatalog";
 import { assets } from "./assets";
 import type {
   Ability,
@@ -62,44 +63,14 @@ const GENRES: Record<Genre, Omit<Ability, "genre"> & { color: string }> = {
   },
 };
 
-const BOOKS: Omit<Book, "id" | "position">[] = [
-  {
-    genre: "sf",
-    title: "火星の読書室",
-    byline: "未来観測局",
-    effect: "出口への見通しを残す",
-  },
-  {
-    genre: "mystery",
-    title: "余白の足跡",
-    byline: "無署名の探偵",
-    effect: "一度だけ筋道を引く",
-  },
-  {
-    genre: "literature",
-    title: "窓辺の頁",
-    byline: "季節の作家",
-    effect: "休息に余韻を足す",
-  },
-  {
-    genre: "philosophy",
-    title: "迷いの形式",
-    byline: "夜の講義録",
-    effect: "直前の一歩を戻せる",
-  },
-  {
-    genre: "practical",
-    title: "棚の整理術",
-    byline: "生活の編集者",
-    effect: "積読の重みを整える",
-  },
-  {
-    genre: "cooking",
-    title: "湯気と索引",
-    byline: "台所の人",
-    effect: "余白を温める",
-  },
-];
+// 本文と書誌はMarkdownカタログに置き、GameWorldはラン固有のIDと配置だけを担う。
+const BOOKS: Omit<Book, "id" | "position">[] = storyCatalog.map((story) => ({
+  storyId: story.id,
+  genre: story.genre,
+  title: story.title,
+  byline: story.byline,
+  effect: story.effect,
+}));
 
 const AID_DATA: Record<AidKind, Omit<Aid, "id" | "position">> = {
   glasses: { kind: "glasses", name: "老眼鏡", note: "文字の輪郭を +30" },

@@ -22,6 +22,7 @@ export type Point = { x: number; z: number };
 
 export type Book = {
   id: string;
+  storyId: string;
   genre: Genre;
   title: string;
   byline: string;

@@ -8,7 +8,10 @@ Reactはゲームを収める見開き頁とDOM上の補助UIを描画し、Baby
 App.tsx
   └─ GameCanvas.tsx
        ├─ Babylon Engine / createGameScene()
-       └─ 書庫欄外UI（Snapshotの表示・入力送信）
+       ├─ 書庫欄外UI（Snapshotの表示・入力送信）
+       ├─ Reader.tsx（全画面・本文スクロール・文字サイズ）
+       ├─ BookEncounter.tsx（本との遭遇と選択）
+       └─ DirectionPad.tsx（移動操作）
 
 game/scene.ts
   └─ GameWorld
@@ -34,6 +37,10 @@ game/scene.ts
 ## 状態機械
 
 ゲームは `title → exploring → bookChoice → memoryChoice → chapterClear → ending` を明示的に遷移する。`bookChoice` では隣接する本を読む、抱える、見送る。`memoryChoice` は記憶枠が3冊で満杯の場合だけ表示し、能力を1つ手放して差し替える。探索中の一手は年輪を進め、可読性・余白・積読負荷を再計算してから、敗北とクリアを判定する。
+
+## Readerと短編コンテンツ
+
+短編本文は `client/src/content/stories/*.md` にfrontmatterと本文を分けて置き、`storyCatalog.ts` が書誌情報と段落を読み込む。`hook`は遭遇時の興味を作る一文としてfrontmatterに置き、読了目安は本文の空白を除いた文字数から約400文字/分で導出する。`GameWorld` はカタログの `storyId` を持つ盤面用の `Book` を生成するだけで、本文そのものは持たない。`bookChoice → Reader → bookChoice` の戻りではゲーム状態を変えず、Reader末尾の「本を閉じる」で初めて既存の `read` アクションを実行する。Reader表示中はゲーム入力を無効化し、本文にはゲーム上の可読性blurを適用しない。
 
 ## Asset Hints
 
