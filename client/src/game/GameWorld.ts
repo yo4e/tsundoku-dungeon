@@ -72,6 +72,13 @@ const BOOKS: Omit<Book, "id" | "position">[] = storyCatalog.map((story) => ({
   effect: story.effect,
 }));
 
+const CHAPTER_INQUIRIES = [
+  "砂に消える航路の、その先を確かめる。",
+  "頁の余白に残された足跡の主を追う。",
+  "窓辺で途切れた手紙の続きを見つける。",
+  "最後の梯子を開く、静かな答えを選ぶ。",
+];
+
 const AID_DATA: Record<AidKind, Omit<Aid, "id" | "position">> = {
   glasses: { kind: "glasses", name: "老眼鏡", note: "文字の輪郭を +30" },
   contacts: {
@@ -201,6 +208,12 @@ export class GameWorld {
   private routeHint: string | null = null;
   private finalNote: string | null = null;
   private ending: GameSnapshot["ending"] = null;
+  private chapterRead = false;
+  private inquiryBookId = "";
+  private inquiryBookTitle = "今夜の一冊";
+  private inquiryBookGenre: Genre = "sf";
+  private inquiryCompleted = false;
+  private bookmarks = 0;
   private log: string[] = ["棚の隙間に、まだ読んでいない夜がある。"];
   private chapterSpecialUsed = new Set<Genre>();
   private onSnapshot: (snapshot: GameSnapshot) => void;
@@ -320,6 +333,12 @@ export class GameWorld {
     this.routeHint = null;
     this.finalNote = null;
     this.ending = null;
+    this.chapterRead = false;
+    this.inquiryBookId = "";
+    this.inquiryBookTitle = "今夜の一冊";
+    this.inquiryBookGenre = "sf";
+    this.inquiryCompleted = false;
+    this.bookmarks = 0;
     this.chapterSpecialUsed.clear();
     this.log = ["新しい夜。新しい棚。読むことを、また選ぶ。"];
     this.buildChapter();
@@ -336,6 +355,11 @@ export class GameWorld {
       this.walls.has(key(next))
     ) {
       this.pushLog("そこは背表紙の壁だ。別の余白を探そう。\n");
+      this.emit();
+      return;
+    }
+    if (pointEq(next, EXIT) && !this.chapterRead) {
+      this.pushLog("金の梯子には、まだ頁の鍵がない。今夜の一冊を探そう。\n");
       this.emit();
       return;
     }
@@ -374,12 +398,24 @@ export class GameWorld {
   private readBook() {
     const book = this.activeBook;
     if (!book) return;
+    const isInquiryBook = book.id === this.inquiryBookId;
     if (this.activeBookCarried) this.tsundoku = this.tsundoku.filter((candidate) => candidate.id !== book.id);
     else this.removeBook(book);
     this.activeBook = null;
     this.activeBookCarried = false;
     this.spendTurn(`「${book.title}」を読む。年輪が一つ、頁の隅に増えた。`);
     if (this.mode === "ending") return;
+
+    if (!this.chapterRead) {
+      this.chapterRead = true;
+      this.pushLog("読んだ一冊が、梯子の金具を解いた。頁の鍵が開いた。\n");
+    }
+    if (isInquiryBook && !this.inquiryCompleted) {
+      this.inquiryCompleted = true;
+      this.bookmarks += 1;
+      this.vigor = Math.min(this.maxVigor(), this.vigor + 2);
+      this.pushLog("今夜の問いに答えた。朱の栞が余白を二つ、戻してくれた。\n");
+    }
 
     if (this.memory.includes(book.genre)) {
       this.applyReadPulse(book.genre);
@@ -472,7 +508,10 @@ export class GameWorld {
       return;
     }
     if (ability === "sf") {
-      this.routeHint = `予見：次の棚には「${BOOKS[(this.chapter + 1) % BOOKS.length].title}」と補助具が待つ。`;
+      const inquiryBook = this.books.find((book) => book.id === this.inquiryBookId);
+      this.routeHint = inquiryBook
+        ? `予見：今夜の問いには「${inquiryBook.title}」が応える。`
+        : "予見：今夜の答えは、すでにあなたの記憶にある。";
       this.pushLog("まだ開いていない棚の一頁が、淡く透けた。\n");
       this.emit();
     }
@@ -484,7 +523,10 @@ export class GameWorld {
       this.pushLog("湯気のように、余白が温まった。\n");
     }
     if (genre === "sf") {
-      this.routeHint = `予見：次の棚には「${BOOKS[(this.chapter + 1) % BOOKS.length].title}」がある。`;
+      const inquiryBook = this.books.find((book) => book.id === this.inquiryBookId);
+      this.routeHint = inquiryBook
+        ? `予見：今夜の問いには「${inquiryBook.title}」が応える。`
+        : "予見：答えの頁は、すでに閉じている。";
     }
     if (genre === "practical") {
       this.vigor = Math.min(this.maxVigor(), this.vigor + 1);
@@ -590,9 +632,17 @@ export class GameWorld {
       canRest: this.isAtRest(),
       specialReady: this.specialReady(),
       log: this.log,
-      score: this.chapter * 120 + this.memory.length * 35 + this.acquiredAids.length * 25 - this.tsundoku.length * 18,
+      score: this.chapter * 120 + this.memory.length * 35 + this.acquiredAids.length * 25 + this.bookmarks * 45 - this.tsundoku.length * 18,
       routeHint: this.routeHint,
       finalNote: this.finalNote,
+      chapterObjective: {
+        prompt: CHAPTER_INQUIRIES[(this.chapter - 1) % CHAPTER_INQUIRIES.length],
+        targetTitle: this.inquiryBookTitle,
+        targetGenre: this.inquiryBookGenre,
+        chapterRead: this.chapterRead,
+        inquiryCompleted: this.inquiryCompleted,
+        bookmarks: this.bookmarks,
+      },
     });
   }
 
@@ -603,6 +653,12 @@ export class GameWorld {
       const source = BOOKS[(index + this.chapter - 1) % BOOKS.length];
       return { ...source, id: `b-${this.chapter}-${index}`, position: { ...position } };
     });
+    this.chapterRead = false;
+    this.inquiryCompleted = false;
+    const inquiryIndex = ((this.chapter - 1) * 2) % this.books.length;
+    this.inquiryBookId = this.books[inquiryIndex]?.id ?? "";
+    this.inquiryBookTitle = this.books[inquiryIndex]?.title ?? "今夜の一冊";
+    this.inquiryBookGenre = this.books[inquiryIndex]?.genre ?? "sf";
     const aidKinds: AidKind[] = ["glasses", "lamp", "contacts", "ereader"];
     const aidSource = AID_DATA[aidKinds[(this.chapter - 1) % aidKinds.length]];
     const aidPosition = AID_POSITIONS[(this.chapter - 1) % AID_POSITIONS.length];

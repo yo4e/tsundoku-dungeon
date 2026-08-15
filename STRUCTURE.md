@@ -32,11 +32,14 @@ game/scene.ts
 | `PlayerState` | 一手で更新される人生の状態 | `pos`, `age`, `clarity`, `vigor`, `tsundoku`, `memory`, `aids` |
 | `Chapter` | 1冊ぶんの書架階層 | `grid`, `exit`, `floor`, `turns`, `seed` |
 | `GameAction` | UIからゲームへ渡す意味論的な入力 | `move`, `read`, `carry`, `leave`, `rest`, `restart` |
-| `UISnapshot` | UIに公開する安全な表示状態 | ステータス、近傍本、ログ、モーダル、終了状態 |
+| `ChapterObjective` | 各章で短編へ向かう問いと報酬 | 問い、対象本、頁の鍵、朱の栞 |
+| `GameSnapshot` | UIに公開する安全な表示状態 | ステータス、章目的、近傍本、ログ、モーダル、終了状態 |
 
 ## 状態機械
 
 ゲームは `title → exploring → bookChoice → memoryChoice → chapterClear → ending` を明示的に遷移する。`bookChoice` では隣接する本を読む、抱える、見送る。`memoryChoice` は記憶枠が3冊で満杯の場合だけ表示し、能力を1つ手放して差し替える。探索中の一手は年輪を進め、可読性・余白・積読負荷を再計算してから、敗北とクリアを判定する。
+
+各章の出口は、読了前には**頁の鍵**で閉じている。どの本でもReader末尾の読了確定によって鍵を開けるため、短編を読むことは探索の必須目的になる。一方、対象本だけが**朱の栞**で余白を2回復するので、近い本による即時脱出と、問いの本への寄り道を比較する戦略が残る。
 
 ## Readerと短編コンテンツ
 

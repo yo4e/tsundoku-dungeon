@@ -45,6 +45,15 @@ export type Ability = {
   description: string;
 };
 
+export type ChapterObjective = {
+  prompt: string;
+  targetTitle: string;
+  targetGenre: Genre;
+  chapterRead: boolean;
+  inquiryCompleted: boolean;
+  bookmarks: number;
+};
+
 export type GameAction =
   | { type: "start" }
   | { type: "restart" }
@@ -80,4 +89,5 @@ export type GameSnapshot = {
   score: number;
   routeHint: string | null;
   finalNote: string | null;
+  chapterObjective: ChapterObjective;
 };
